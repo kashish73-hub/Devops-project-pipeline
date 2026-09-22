@@ -12,25 +12,24 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
+                bat '''
+                    python -m pip install --upgrade pip
+                    python -m pip install -r requirements.txt
                     pytest test_app.py
                 '''
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${APP_NAME}:latest ."
+                bat "docker build -t %APP_NAME%:latest ."
             }
         }
         stage('Deploy Container') {
             steps {
-                sh '''
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
-                    docker run -d --restart unless-stopped --name ${CONTAINER_NAME} -p 5000:5000 ${APP_NAME}:latest
+                bat '''
+                    docker stop %CONTAINER_NAME%  
+                    docker rm %CONTAINER_NAME%  
+                    docker run -d --restart unless-stopped --name %CONTAINER_NAME% -p 5000:5000 %APP_NAME%:latest
                 '''
             }
         }
